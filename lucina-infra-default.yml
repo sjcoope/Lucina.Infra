@@ -17,7 +17,7 @@ Parameters:
   GitHubOAuthToken:
     Type: String
     Description: GitHub oauth token.  This user must have admin access to the repo.
-    Default: "b8b2dd704a52e737fa181d551ef9089604e29106"
+    Default: "02a100ec50c1b99ffbd61d38acc5789661d5dd79"
     NoEcho: true
   GitHubRepoOwner:
     Type: String
