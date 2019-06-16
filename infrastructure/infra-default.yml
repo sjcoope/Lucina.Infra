@@ -1,0 +1,44 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "This template sets up the initial build for all cloudformation resources created in the Lucina project."
+Parameters:
+  ApplicationName: 
+    Type: String
+    Description: The name of the application being deployed.
+  EnvironmentName: 
+    Type: String
+    Description: The environment being deployed (e.g. DEV, QA, PROD)
+
+Resources:
+
+  # S3 bucket for deployment artifacts
+  DeploymentArtifactBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub sjcnet-lucina-deployment-${EnvironmentName}
+      AccessControl: Private
+      LifecycleConfiguration:
+        Rules: 
+          - 
+            ExpirationInDays: 5
+            Status: Enabled
+      Tags:
+        - 
+          Key: Application
+          Value: !Ref ApplicationName
+        - 
+          Key: Environment
+          Value: !Ref EnvironmentName
+  
+  # S3 bucket for storing secrets
+  SecretArtifactBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub sjcnet-lucina-secrets-${EnvironmentName}
+      AccessControl: Private
+      Tags:
+        - 
+          Key: Application
+          Value: !Ref ApplicationName
+        - 
+          Key: Environment
+          Value: !Ref EnvironmentName

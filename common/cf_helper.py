@@ -6,9 +6,8 @@ from botocore.exceptions import ClientError, WaiterError
 application_name = "sjcnet-edesia"
 
 class CFHelper:
-    def __init__(self, application_name):
+    def __init__(self):
         self.__getCFClient__()
-        self.application_name = application_name
 
     @classmethod
     def __getCFClient__(self):
@@ -22,6 +21,29 @@ class CFHelper:
     
 
     @classmethod
+    def create_stack(self, stack_name, template, parameters):
+        
+        try:
+            with open(template, 'r') as myfile:
+                data=myfile.read()
+
+            self.cf.create_stack(
+                StackName=stack_name, 
+                TemplateBody=data,
+                Capabilities=['CAPABILITY_NAMED_IAM'],
+                Parameters=parameters
+            )
+
+            result = self.wait_for_stack_create_complete(stack_name)
+
+            return result
+        except ClientError as err:
+            utility.log("Failed to create stack and change set. Check CloudFormation events for more information. \n" + str(err))
+            return False
+        return True
+        
+
+    @classmethod
     def create_change_set(self, stack_name, template, change_set_name, parameters):
         """
         Creates a changeset and checks changes exist before performing update.
@@ -30,24 +52,9 @@ class CFHelper:
             response = self.cf.create_change_set(
                 StackName=stack_name,
                 TemplateBody=open(template, 'r').read(),
-                Capabilities=[
-                    'CAPABILITY_NAMED_IAM'
-                ],
+                Capabilities=['CAPABILITY_NAMED_IAM'],
                 ChangeSetName=change_set_name,
-                Parameters=[
-                    { 
-                        'ParameterKey': 'ApplicationName',
-                        'ParameterValue': parameters.application 
-                    },
-                    { 
-                        'ParameterKey': 'ProjectName',
-                        'ParameterValue': parameters.projectname 
-                    },
-                    { 
-                        'ParameterKey': 'EnvironmentName',
-                        'ParameterValue': parameters.environment 
-                    }
-                ]
+                Parameters=parameters
             )
             return response
         except ClientError as err:
@@ -206,43 +213,6 @@ class CFHelper:
             return False
         return True 
 
-
-    @classmethod
-    def create_stack(self, stack_name, template, parameters):
-        
-        try:
-            with open(template, 'r') as myfile:
-                data=myfile.read()
-
-            self.cf.create_stack(
-                StackName=stack_name, 
-                TemplateBody=data,
-                Capabilities=[
-                    'CAPABILITY_NAMED_IAM'
-                ],
-                Parameters=[
-                    { 
-                        'ParameterKey': 'ApplicationName',
-                        'ParameterValue': parameters.application 
-                    },
-                    { 
-                        'ParameterKey': 'ProjectName',
-                        'ParameterValue': parameters.projectname 
-                    },
-                    { 
-                        'ParameterKey': 'EnvironmentName',
-                        'ParameterValue': parameters.environment 
-                    }
-                ]
-            )
-
-            result = self.wait_for_stack_create_complete(stack_name)
-
-            return result
-        except ClientError as err:
-            utility.log("Failed to create stack and change set. Check CloudFormation events for more information. \n" + str(err))
-            return False
-        return True
 
     @classmethod
     def stack_exists(self, stack_name):

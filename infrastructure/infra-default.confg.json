@@ -1,0 +1,14 @@
+[
+    { 
+        "ParameterKey": "ApplicationName",
+        "ParameterValue": "lucina"
+    },
+    { 
+        "ParameterKey": "ServiceName",
+        "ParameterValue": "lucina-infra-default"
+    },
+    { 
+        "ParameterKey": "EnvironmentName",
+        "ParameterValue": "dev"
+    }
+]
